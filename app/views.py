@@ -8,16 +8,15 @@ app = create_app()
 
 @app.route('/')
 def start():
-    # Trang bắt đầu: khởi tạo session cho một lượt quiz mới
+    # initialize a new session
     session.clear()
     top_score_obj = get_top_score()
     return render_template('start.html', top_score = top_score_obj)
 
 @app.route('/begin', methods=['POST'])
 def begin_quiz():
-    # Khi bấm "Bắt đầu", lấy 5 câu hỏi ngẫu nhiên và khởi tạo trạng thái
-    questions = get_five_questions()
-    # Lưu danh sách ID của 5 câu hỏi vào session
+    # get randomly 10 questions 
+    questions = get_questions()
     session['questions'] = [q.id for q in questions]
     session['current'] = 0
     session['score'] = 0

@@ -2,7 +2,7 @@ from .models import Question, QuizResult
 from . import db
 import random
 
-def get_five_questions():
+def get_questions():
     # get all questions from database, select randomly 10 ones
     questions = Question.query.all()
     if len(questions) < 10:
