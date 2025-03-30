@@ -16,3 +16,8 @@ def get_top_score(top=5):
 def check_name_exist(name):
     exists = QuizResult.query.filter_by(name=name).first() is not None
     return exists
+
+def add_result(name, score, time):
+    new_result = QuizResult(name=name, score=score, time=time)
+    db.session.add(new_result)
+    db.session.commit()

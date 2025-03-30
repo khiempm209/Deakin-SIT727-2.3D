@@ -56,8 +56,6 @@ def result():
         exists = check_name_exist(name)
         if exists:
             return render_template('result.html', score=score, time=time, saved=False, name_exist=True)
-        new_result = QuizResult(name=name, score=score, time=time)
-        db.session.add(new_result)
-        db.session.commit()
+        add_result(name, score, time)
         return render_template('result.html', score=score, name=name, time=time, saved=True, name_exist=False)
     return render_template('result.html', score=score, time=time, saved=False, name_exist=False)
