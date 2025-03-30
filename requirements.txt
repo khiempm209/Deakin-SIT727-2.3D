@@ -1,0 +1,9 @@
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-WTF
+gunicorn
+pandas
+pyarrow
+fsspec
+huggingface_hub

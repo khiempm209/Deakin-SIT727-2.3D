@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Welcome to Trivia Quiz!</h1>
+  <form action="{{ url_for('begin_quiz') }}" method="POST">
+      <button type="submit">Start Quiz</button>
+  </form>
+  <h3>The Leaderboard</h3>
+  <ol>
+    {% for i in top_score %}
+        <li><strong>{{i.name}}</strong> Score: {{ i.score }} - Time: {{ i.time | round(1) }}s</li>
+        <hr>
+    {% endfor %}
+  </ol>
+{% endblock %}

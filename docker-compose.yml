@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    image: localhost:5000/trivia_quiz
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app

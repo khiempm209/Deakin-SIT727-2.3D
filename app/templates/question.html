@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Question: {{ current }} / {{ total }}</h2>
+  <p>{{ question.question }}</p>
+  <form method="POST" action="{{ url_for('question') }}">
+      <div>
+          <input type="radio" id="option_a" name="option" value="A" required>
+          <label for="option_a">A. {{ question.option_a }}</label>
+      </div>
+      <div>
+          <input type="radio" id="option_b" name="option" value="B">
+          <label for="option_b">B. {{ question.option_b }}</label>
+      </div>
+      <div>
+          <input type="radio" id="option_c" name="option" value="C">
+          <label for="option_c">C. {{ question.option_c }}</label>
+      </div>
+      <div>
+          <input type="radio" id="option_d" name="option" value="D">
+          <label for="option_d">D. {{ question.option_d }}</label>
+      </div>
+      <button type="submit">Submit</button>
+  </form>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Quiz Result</h1>
+  <p>Your soccer: {{ score }} - Your time: {{ time | round(1)}}s</p>
+  {% if not saved %}
+  <form method="POST" action="{{ url_for('result') }}">
+      <label for="name">Input your name:</label>
+      {% if not name_exist %}
+      <input type="text" id="name" name="name" required>
+      {% else %}
+      <input type="text" id="name" name="name" required placeholder="This name is already taken">
+      {% endif %}
+      <button type="submit">Save result</button>
+  </form>
+  {% else %}
+  <p>The results of {{ name }} have been saved!</p>
+  <a href="{{ url_for('start') }}">Play again</a>
+  {% endif %}
+{% endblock %}
