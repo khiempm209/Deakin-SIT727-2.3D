@@ -1,0 +1,35 @@
+pipeline{
+    agent any
+    // environment {
+    //     // SONAR_TOKEN = credentials('SONAR_TOKEN')
+    // }
+    stages{
+        stage('Build'){
+            steps{
+                git branch: 'main', credentialsId: 'github-credentials', 
+                url: 'https://github.com/khiempm209/8.2CDevSecOps.git'
+                sh 'docker build -t localhost:5000/my-app:prod .'
+            }
+        }
+        stage('Test'){
+            steps{
+                script{
+                    sh 'conda create -n 7.3HD python=3.10 -y'
+                    sh 'conda activate 7.3HD'
+                    sh 'pip install -r requirements.txt'
+                    sh 'python run.py'
+                    try {
+                        sh 'python -m pytest --import-mode=importlib app/test/selenium_test.py'
+                    } catch (Exception err){
+                        sh 'conda deactivate'
+                        sh 'conda remove --name 7.3HD --all'
+                        error "Pytest tests failed: ${err}"
+                    } finally {
+                        sh 'conda deactivate'
+                        sh 'conda remove --name 7.3HD --all -y'
+                    }
+                }
+            }
+        }
+    }
+}

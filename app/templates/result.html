@@ -2,7 +2,7 @@
 
 {% block content %}
   <h1>Quiz Result</h1>
-  <p>Your soccer: {{ score }} - Your time: {{ time | round(1)}}s</p>
+  <p class="leader-board-score" id="score-result">Your soccer: {{ score }} - Your time: {{ time | round(1)}}s</p>
   {% if not saved %}
   <form method="POST" action="{{ url_for('result') }}">
       <label for="name">Input your name:</label>

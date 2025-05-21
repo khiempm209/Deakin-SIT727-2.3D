@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h2>Question: {{ current }} / {{ total }}</h2>
-  <p>{{ question.question }}</p>
+  <h2 class = "page-title">Question: {{ current }} / {{ total }}</h2>
+  <p id = "question-content">{{ question.question }}</p>
   <form method="POST" action="{{ url_for('question') }}">
       <div>
           <input type="radio" id="option_a" name="option" value="A" required>
@@ -20,6 +20,6 @@
           <input type="radio" id="option_d" name="option" value="D">
           <label for="option_d">D. {{ question.option_d }}</label>
       </div>
-      <button type="submit">Submit</button>
+      <button type="submit" id="next-btn" class="btn-click">Submit</button>
   </form>
 {% endblock %}

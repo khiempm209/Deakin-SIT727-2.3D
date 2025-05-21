@@ -1,14 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Welcome to Trivia Quiz!</h1>
+  <h1 class="page-title">Welcome to Trivia Quiz!</h1>
   <form action="{{ url_for('begin_quiz') }}" method="POST">
-      <button type="submit">Start Quiz</button>
+      <button type="submit" id="start-btn" class="btn-click">Start Quiz</button>
   </form>
-  <h3>The Leaderboard</h3>
+  <h3 class="leader-board" id="start-leader-board">The Leaderboard</h3>
   <ol>
     {% for i in top_score %}
-        <li><strong>{{i.name}}</strong> Score: {{ i.score }} - Time: {{ i.time | round(1) }}s</li>
+        <li>
+          <strong class="leader-board-usr" id="usr-{{ loop.index0 }}">{{i.name}}</strong>
+          <span class="leader-board-score" id="usr-{{ loop.index0 }}">Score: {{ i.score }} - Time: {{ i.time | round(1) }}s</span>
+        </li>
         <hr>
     {% endfor %}
   </ol>
