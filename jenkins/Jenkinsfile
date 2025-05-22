@@ -1,32 +1,59 @@
 pipeline{
     agent any
-    // environment {
-    //     // SONAR_TOKEN = credentials('SONAR_TOKEN')
-    // }
+    environment {
+        // SONAR_TOKEN = credentials('SONAR_TOKEN')
+        CONDA_PATH = "/home/khiempm/anaconda/bin"
+        PATH= "${CONDA_PATH}:${PATH}"
+    }
     stages{
-        stage('Build'){
-            steps{
-                git branch: 'main', credentialsId: 'github-credentials', 
-                url: 'https://github.com/khiempm209/8.2CDevSecOps.git'
-                sh 'docker build -t localhost:5000/my-app:prod .'
-            }
-        }
-        stage('Test'){
+        // stage('Build'){
+        //     steps{
+        //         git branch: 'main', credentialsId: 'github-credentials', 
+        //         url: 'https://github.com/khiempm209/Deakin-SIT727-2.3D.git'
+        //         sh 'whoami'
+        //         sh 'which conda'
+        //         sh 'docker build -t localhost:5000/my-app:prod .'
+        //     }
+        // }
+        // stage('Test'){
+        //     steps{
+        //         script{
+        //             sh 'conda create -n 7.3HD python=3.10 -y'
+        //             sh '''
+        //                 eval "$(conda shell.bash hook)"
+        //                 conda activate 7.3HD
+        //             '''
+        //             sh 'pip install -r requirements.txt'
+        //             sh 'nohup python run.py &'
+        //             try {
+        //                 sh 'python -m pytest --import-mode=importlib app/test/selenium_test.py'
+        //             } catch (Exception err){
+        //                 error "Pytest tests failed: ${err}"
+        //             } finally {
+        //                 sh 'killall python'
+        //                 sh '''
+        //                     eval "$(conda shell.bash hook)"
+        //                     conda deactivate
+        //                 '''
+        //                 sh 'conda remove --name 7.3HD --all -y'
+        //             }
+        //         }
+        //     }
+        // }
+        stage('Code Quality'){
             steps{
                 script{
-                    sh 'conda create -n 7.3HD python=3.10 -y'
-                    sh 'conda activate 7.3HD'
-                    sh 'pip install -r requirements.txt'
-                    sh 'python run.py'
-                    try {
-                        sh 'python -m pytest --import-mode=importlib app/test/selenium_test.py'
-                    } catch (Exception err){
-                        sh 'conda deactivate'
-                        sh 'conda remove --name 7.3HD --all'
-                        error "Pytest tests failed: ${err}"
-                    } finally {
-                        sh 'conda deactivate'
-                        sh 'conda remove --name 7.3HD --all -y'
+                    def sonarFolder = 'sonar-scanner-7.1.0.4889-linux-x64'
+                    def sonarDir = "${env.HOME}/${sonarFolder}"
+                    def sonarZipUrl = "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-7.1.0.4889-linux-x64.zip"
+
+                    if (!fileExists(sonarDir)) {
+                        echo "Sonar Scanner does not exist. Downloading and unziping..."
+                        sh "curl -sSL ${sonarZipUrl} -o sonar-scanner.zip"
+                        sh "unzip -q sonar-scanner.zip -d ${env.HOME}"
+                        sh "rm sonar-scanner.zip"
+                    } else {
+                        echo "Sonar Scanner existed in path: ${env.HOME}"
                     }
                 }
             }
