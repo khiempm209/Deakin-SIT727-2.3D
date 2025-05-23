@@ -91,3 +91,24 @@ spec:
 status:
   currentReplicas: 0
   desiredReplicas: 0
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: trivia-web-role
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: trivia-web-binding
+subjects:
+- kind: ServiceAccount
+  name: trivia-web
+roleRef:
+  kind: Role
+  name: trivia-web-role
+  apiGroup: rbac.authorization.k8s.io

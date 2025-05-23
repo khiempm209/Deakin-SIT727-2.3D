@@ -1,6 +1,7 @@
 pipeline{
     agent any
     environment {
+        
         SONAR_TOKEN = credentials('SONAR_TOKEN')
         CONDA_PATH = "/home/khiempm/anaconda/bin"
         PATH= "${CONDA_PATH}:${PATH}"
@@ -103,6 +104,9 @@ pipeline{
                     sh "microk8s kubectl get services"
                 }
             }
+        }
+        stage("Release"){
+
         }
     }
 }
