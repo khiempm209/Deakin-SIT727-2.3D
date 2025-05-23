@@ -1,7 +1,7 @@
 pipeline{
     agent any
     environment {
-        GITHUB_TAG = "1.0"
+        GITHUB_TAG = "v1.0"
         SONAR_TOKEN = credentials('SONAR_TOKEN')
         CONDA_PATH = "/home/khiempm/anaconda/bin"
         PATH= "${CONDA_PATH}:${PATH}"
@@ -109,7 +109,7 @@ pipeline{
                 script{
                     sh "microk8s kubectl get services"
                     sh "microk8s kubectl get pods"
-                    sh "git tag -a v1.0 -m 'Deployed version ${GITHUB_TAG} MicroK8s'"
+                    sh "git tag -a ${GITHUB_TAG} -m 'Deployed version ${GITHUB_TAG} MicroK8s'"
                     sh "git push origin ${GITHUB_TAG}"
                 }
             }
