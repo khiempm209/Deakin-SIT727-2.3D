@@ -1,7 +1,7 @@
 pipeline{
     agent any
     environment {
-        GITHUB_TAG = "v1.0.6"
+        GITHUB_TAG = "v1.0.7"
         SONAR_TOKEN = credentials('SONAR_TOKEN')
         CONDA_PATH = "/home/khiempm/anaconda/bin"
         PATH= "${CONDA_PATH}:${PATH}"
@@ -153,7 +153,7 @@ pipeline{
         stage('Monitoring'){
             steps{
                 script{
-                    sleep time: 2, unit: 'MINUTES'
+                    sleep time: 1, unit: 'MINUTES'
                     sh "microk8s enable observability"
                     sh "nohup microk8s kubectl port-forward service/prometheus-operated 9090:${PROMETHEUS_PORT} -n observability &"
                     sleep time: 10, unit: 'SECONDS'
