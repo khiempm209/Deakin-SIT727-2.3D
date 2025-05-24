@@ -1,7 +1,7 @@
 pipeline{
     agent any
     environment {
-        GITHUB_TAG = "v1.0.5"
+        GITHUB_TAG = "v1.0.6"
         SONAR_TOKEN = credentials('SONAR_TOKEN')
         CONDA_PATH = "/home/khiempm/anaconda/bin"
         PATH= "${CONDA_PATH}:${PATH}"
@@ -156,6 +156,7 @@ pipeline{
                     sleep time: 2, unit: 'MINUTES'
                     sh "microk8s enable observability"
                     sh "nohup microk8s kubectl port-forward service/prometheus-operated 9090:${PROMETHEUS_PORT} -n observability &"
+                    sleep time: 10, unit: 'SECONDS'
                     def promqlQuery = "sum(rate(container_cpu_usage_seconds_total{container!='', pod=~'trivia-web.*'}[5m])) without (container)"
                     def queryUrl = "http://localhost:${PROMETHEUS_PORT}/api/v1/query?query=${URLEncoder.encode(promqlQuery, 'UTF-8')}"
                     def result = sh(script: "curl -s '${queryUrl}' > cpu_test_result.json", returnStdout: true)
