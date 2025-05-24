@@ -1,7 +1,7 @@
 pipeline{
     agent any
     environment {
-        GITHUB_TAG = "v1.0.1"
+        GITHUB_TAG = "v1.0.3"
         SONAR_TOKEN = credentials('SONAR_TOKEN')
         CONDA_PATH = "/home/khiempm/anaconda/bin"
         PATH= "${CONDA_PATH}:${PATH}"
