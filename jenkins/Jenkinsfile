@@ -1,16 +1,18 @@
 pipeline{
     agent any
     environment {
-        GITHUB_TAG = "v1.0"
+        GITHUB_TAG = "v1.0.0"
         SONAR_TOKEN = credentials('SONAR_TOKEN')
         CONDA_PATH = "/home/khiempm/anaconda/bin"
         PATH= "${CONDA_PATH}:${PATH}"
+        GITHUB_PROJECT = "https://github.com/khiempm209/Deakin-SIT727-2.3D.git"
+        GITHUB_CREDENTIALS = credentials('github-credentials')
+        PROMETHEUS_PORT = 9090
     }
     stages{
         stage('Checkout'){
             steps{
-                git branch: 'main', credentialsId: 'github-credentials', 
-                url: 'https://github.com/khiempm209/Deakin-SIT727-2.3D.git'
+                git branch: 'main', credentialsId: 'github-credentials', url: "${GITHUB_PROJECT}"
             }
         }
         stage('Build'){
@@ -43,6 +45,16 @@ pipeline{
                     }
                 }
             }
+            post{
+                failure{
+                    emailext (
+                        subject: "Jenkins Pipeline was failure - Test Phase Report from Jenkins- ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        body: "Hello,\n\nThere are test cases that failed. Check the logs on jenkins for more details.\n\nRegards,\nJenkins",
+                        to: "minhkhiemphamau@gmail.com",
+                        from: 'phamminhkhiem209@example.com',
+                    )
+                }
+            }
         }
         stage('Code Quality'){
             steps{
@@ -69,6 +81,16 @@ pipeline{
                     }
                 }
             }
+            post{
+                failure{
+                    emailext (
+                        subject: "Jenkins Pipeline was failure - Code Quality Report from Jenkins- ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        body: "Hello,\n\nThe project has failed the SonarQube Quality Gate. Please visit the platform's website to check for issues and fix the coding.\n\nRegards,\nJenkins",
+                        to: "minhkhiemphamau@gmail.com",
+                        from: 'phamminhkhiem209@example.com',
+                    )
+                }
+            }
         }
         stage("Security"){
             steps{
@@ -76,7 +98,7 @@ pipeline{
                     sh "conda run -n 7.3HD pip install bandit"
                     sh "conda run -n 7.3HD bandit -r . -f txt -o bandit_report.txt || true"
                     def highSeverityIssues = sh(script: "grep 'Severity: High' bandit_report.txt | wc -l", returnStdout: true).trim().toInteger()
-                    sh "grep 'Severity: Low' bandit_report.txt | wc -l"
+                    sh "grep 'Severity: High' bandit_report.txt | wc -l"
                     if (highSeverityIssues > 0) {
                         error "Bandit found ${highSeverityIssues} high-severity security issues!"
                     }
@@ -84,10 +106,20 @@ pipeline{
                 }
             }
             post{
-                success {
+                success{
                     emailext (
                         subject: "Security Report from Jenkins- ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                         body: "Hello,\n\nPlease find attached the security report for the project.\n\nRegards,\nJenkins",
+                        to: "minhkhiemphamau@gmail.com",
+                        from: 'phamminhkhiem209@example.com',
+                        attachmentsPattern: 'bandit_report.txt'
+                    )
+                    sh "rm bandit_report.txt"
+                }
+                failure{
+                    emailext (
+                        subject: "Jenkins Pipeline was failure - Security Report from Jenkins- ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        body: "Hello,\n\nThere are some serious security issues in coding.\n\nPlease find attached the security report for the project.\n\nRegards,\nJenkins",
                         to: "minhkhiemphamau@gmail.com",
                         from: 'phamminhkhiem209@example.com',
                         attachmentsPattern: 'bandit_report.txt'
@@ -109,8 +141,39 @@ pipeline{
                 script{
                     sh "microk8s kubectl get services"
                     sh "microk8s kubectl get pods"
-                    sh "git tag -a ${GITHUB_TAG} -m 'Deployed version ${GITHUB_TAG} MicroK8s'"
-                    sh "git push origin ${GITHUB_TAG}"
+                    withCredentials([
+                        gitUsernamePassword(credentialsId: 'github-credentials', gitToolName: 'Default')
+                    ]) {
+                        sh "git tag -a ${GITHUB_TAG} -m 'Deployed version ${GITHUB_TAG} MicroK8s'"
+                        sh "git push origin ${GITHUB_TAG}"
+                    }
+                }
+            }
+        }
+        stage('Monitoring'){
+            steps{
+                script{
+                    sleep time: 2, unit: 'MINUTES'
+                    sh "microk8s enable observability"
+                    sh "nohup microk8s kubectl port-forward service/prometheus-operated 9090:${PROMETHEUS_PORT} -n observability &"
+                    def promqlQuery = "sum(rate(container_cpu_usage_seconds_total{container!='', pod=~'trivia-web.*'}[5m])) without (container)"
+                    def queryUrl = "http://localhost:${PROMETHEUS_PORT}/api/v1/query?query=${URLEncoder.encode(promqlQuery, 'UTF-8')}"
+                    def result = sh(script: "curl -s '${queryUrl}' > cpu_test_result.json", returnStdout: true)
+                    sh "cat cpu_test_result.json"
+                    //cat "Prometheus CPU Trivia-Web: ${result}"
+                    //sh "pkill -f 'service/prometheus-operated 9090:${PROMETHEUS_PORT}'"
+                }
+            }
+            post{
+                success{
+                    emailext (
+                        subject: "Jenkins Pipeline was builed successfully - Prometheus CPU Report from Jenkins- ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        body: "Hello,\n\nPlease find attached the CPU Report for the project.\n\nRegards,\nJenkins",
+                        to: "minhkhiemphamau@gmail.com",
+                        from: 'phamminhkhiem209@example.com',
+                        attachmentsPattern: 'cpu_test_result.json'
+                    )
+                    sh "rm cpu_test_result.json"                   
                 }
             }
         }
